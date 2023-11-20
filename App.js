@@ -7,12 +7,34 @@ const BiometricAuthComponent = () => {
   const [biometricType, setBiometricType] = useState('');
   const [biometricError, setBiometricError] = useState('');
 
-  // Untuk Menecek apakah ada biometrik
+  // Untuk Mengecek apakah ada biometrik
   const rnBiometrics = new ReactNativeBiometrics({
     allowDeviceCredentials: true,
   });
   const checkBiometrics = async () => {
     try {
+      // Membuat Key
+      rnBiometrics.createKeys().then(resultObject => {
+        const {publicKey} = resultObject;
+        console.log(publicKey);
+      });
+
+      let epochTimeSeconds = Math.round(new Date().getTime() / 1000).toString();
+      let payload = epochTimeSeconds + 'some message';
+
+      rnBiometrics
+        .createSignature({
+          promptMessage: 'Sign in',
+          payload: payload,
+        })
+        .then(resultObject => {
+          const {success, signature} = resultObject;
+
+          if (success) {
+            console.log(signature);
+          }
+        });
+
       const {available, biometryType} = await rnBiometrics.isSensorAvailable();
 
       if (available) {
